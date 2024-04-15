@@ -14,6 +14,19 @@ export default function OnlineGameController() {
     socket.emit("queue.join");
     setInQueue(false);
     setInGame(false);
+
+    socket.on("queue.added", (data) => {
+      console.log("[listen][queue.added]:", data);
+      setInQueue(data["inQueue"]);
+      setInGame(data["inGame"]);
+    });
+
+    socket.on("game.start", (data) => {
+      console.log("[listen][game.start]:", data);
+      setInQueue(data["inQueue"]);
+      setInGame(data["inGame"]);
+      setIdOpponent(data["idOpponent"]);
+    });
   }, []);
 
   return (
@@ -33,9 +46,9 @@ export default function OnlineGameController() {
       {inGame && (
         <>
           <Text style={styles.paragraph}>Game found !</Text>
-          <Text style={styles.paragraph}>
-            Player {socket.id} vs {idOpponent}
-          </Text>
+          <Text style={styles.paragraph}>Player - {socket.id} -</Text>
+          <Text style={styles.paragraph}>- vs -</Text>
+          <Text style={styles.paragraph}>Player - {idOpponent} -</Text>
         </>
       )}
     </View>
