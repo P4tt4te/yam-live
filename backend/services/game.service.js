@@ -1,3 +1,5 @@
+const TURN_DURATION = 30;
+
 const GAME_INIT = {
   gameState: {
     currentTurn: "player:1",

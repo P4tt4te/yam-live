@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useContext } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SocketContext } from "../contexts/socket.context";
+import Board from "../components/board.component";
 
 export default function OnlineGameController() {
   const socket = useContext(SocketContext);
@@ -42,18 +43,21 @@ export default function OnlineGameController() {
           <Text style={styles.paragraph}>Waiting for another player...</Text>
         </>
       )}
+      {inGame && <Board />}
+    </View>
+  );
+}
 
-      {inGame && (
+/*
+{inGame && (
         <>
           <Text style={styles.paragraph}>Game found !</Text>
           <Text style={styles.paragraph}>Player - {socket.id} -</Text>
           <Text style={styles.paragraph}>- vs -</Text>
           <Text style={styles.paragraph}>Player - {idOpponent} -</Text>
         </>
-      )}
-    </View>
-  );
-}
+      }
+*/
 
 const styles = StyleSheet.create({
   container: {
