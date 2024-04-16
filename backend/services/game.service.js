@@ -3,7 +3,7 @@ const TURN_DURATION = 30;
 const GAME_INIT = {
   gameState: {
     currentTurn: "player:1",
-    timer: 60,
+    timer: TURN_DURATION,
     player1Score: 0,
     player2Score: 0,
     grid: [],
@@ -36,13 +36,18 @@ const GameService = {
               : game.player1Socket.id,
         };
       },
-
       viewQueueState: () => {
         return {
           inQueue: true,
           inGame: false,
         };
       },
+      gameTimer: (playerKey, gameState) => {
+        // Selon la clé du joueur on adapte la réponse (player / opponent)
+        const playerTimer = gameState.currentTurn === playerKey ? gameState.timer : 0;
+        const opponentTimer = gameState.currentTurn === playerKey ? 0 : gameState.timer;
+        return { playerTimer: playerTimer, opponentTimer: opponentTimer };
+    },
     },
   },
   utils: {

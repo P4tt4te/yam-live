@@ -14,6 +14,17 @@ let queue = [];
 // -------- GAME METHODS -----------
 // ---------------------------------
 
+const updateClientsViewTimers = (game) => {
+  game.player1Socket.emit(
+    "game.timer",
+    GameService.send.forPlayer.gameTimer("player:1", game.gameState)
+  );
+  game.player2Socket.emit(
+    "game.timer",
+    GameService.send.forPlayer.gameTimer("player:2", game.gameState)
+  );
+};
+
 const newPlayerInQueue = (socket) => {
   queue.push(socket);
 
@@ -62,22 +73,7 @@ const createGame = (player1Socket, player2Socket) => {
     }
 
     // On notifie finalement les clients que les données sont mises à jour.
-    games[gameIndex].player1Socket.emit(
-      "game.timer",
-      GameService.send.forPlayer.gameTimer(
-        "player:1",
-        games[gameIndex].gameState
-      )
-    );
-    games[gameIndex].player2Socket.emit(
-      "game.timer",
-      GameService.send.forPlayer.gameTimer(
-        "player:2",
-        games[gameIndex].gameState
-      )
-    );
-
-    
+    updateClientsViewTimers(games[gameIndex]);
   }, 1000);
 
   player1Socket.on("disconnect", () => {
