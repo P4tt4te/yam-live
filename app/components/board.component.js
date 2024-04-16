@@ -2,6 +2,8 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { PlayerTimer } from "./board/timers/player-timer.component";
 import { OpponentTimer } from "./board/timers/opponent-timer.component";
+import PlayerDeck from "./board/decks/player-deck.component";
+import OpponentDeck from "./board/decks/opponent-deck.component";
 
 const OpponentInfos = () => {
   return (
@@ -19,14 +21,6 @@ const OpponentScore = () => {
   );
 };
 
-const OpponentDeck = () => {
-  return (
-    <View style={styles.deckOpponentContainer}>
-      <Text>OpponentDeck</Text>
-    </View>
-  );
-};
-
 const Grid = () => {
   return (
     <View style={styles.gridContainer}>
@@ -39,14 +33,6 @@ const Choices = () => {
   return (
     <View style={styles.choicesContainer}>
       <Text>Choices</Text>
-    </View>
-  );
-};
-
-const PlayerDeck = () => {
-  return (
-    <View style={styles.deckPlayerContainer}>
-      <Text>PlayerDeck </Text>
     </View>
   );
 };
