@@ -3,7 +3,7 @@ import diceAsset from "../../assets/dice.glb";
 import { useRef } from "react";
 import { useFrame } from "@react-three/fiber";
 
-const TestDice = () => {
+const EngineDice = () => {
   const { scene } = useGLTF(diceAsset);
   const mesh = useRef();
 
@@ -17,4 +17,4 @@ const TestDice = () => {
     </group>
   );
 };
-export default TestDice;
+export default EngineDice;

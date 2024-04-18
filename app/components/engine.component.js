@@ -1,6 +1,7 @@
 import { Canvas } from "@react-three/fiber";
 import TestBox from "./engine/test-box.component";
-import TestDice from "./engine/test-dice.component";
+import EngineDice from "./engine/engine-dice.component";
+import EngineBoard from "./engine/engine-board.component";
 
 const Engine = () => {
   //<TestBox />
@@ -8,7 +9,7 @@ const Engine = () => {
   return (
     <Canvas
       gl={{ physicallyCorrectLights: true }}
-      camera={{ position: [-6, 0, 16], fov: 36 }}
+      camera={{ position: [0, 0, 10] }}
       onCreated={(state) => {
         const _gl = state.gl.getContext();
         const pixelStorei = _gl.pixelStorei.bind(_gl);
@@ -23,8 +24,8 @@ const Engine = () => {
     >
       <pointLight position={[-2, -3, 0]} intensity={100} />
       <pointLight position={[6, 10, 6]} intensity={1000} />
-      <TestBox />
-      <TestDice />
+      <EngineDice />
+      <EngineBoard />
     </Canvas>
   );
 };

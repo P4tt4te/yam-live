@@ -5,6 +5,7 @@ import Engine from "../components/engine.component";
 
 // Replace this URL with your own socket-io host, or start the backend locally
 const socketEndpoint = "http://10.60.104.103:3000";
+const enableEngine = false;
 
 export default function HomeScreen({ navigation }) {
   const [hasConnection, setConnection] = useState(false);
@@ -28,38 +29,23 @@ export default function HomeScreen({ navigation }) {
     };
   }, []);
 
-  /*
   return (
     <View style={styles.container}>
-      {!hasConnection && (
-        <>
-          <Text style={styles.paragraph}>
-            Connecting to {socketEndpoint}...
-          </Text>
-          <Text style={styles.footnote}>
-            Make sure the backend is started and reachable
-          </Text>
-        </>
+      {enableEngine && (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "black",
+          }}
+        >
+          <Engine />
+        </View>
       )}
 
-      {hasConnection && (
-        <>
-          <Text style={[styles.paragraph, { fontWeight: "bold" }]}>
-            Server time
-          </Text>
-          <Text style={styles.paragraph}>{time}</Text>
-        </>
-      )}
-    </View>
-  );
-  <View style={{ height: 300, backgroundColor: "black", width: 300 }}>
-        <Engine />
-    </View>
-  */
-
-  return (
-    <View style={styles.container}>
-      
       <View>
         <Button
           title="Jouer en ligne"
@@ -82,5 +68,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
+    position: "relative",
   },
 });
