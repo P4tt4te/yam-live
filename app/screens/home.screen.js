@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { StyleSheet, Text, View, Button } from "react-native";
 import io from "socket.io-client";
+import Engine from "../components/engine.component";
 
 // Replace this URL with your own socket-io host, or start the backend locally
 const socketEndpoint = "http://10.60.104.103:3000";
@@ -51,10 +52,14 @@ export default function HomeScreen({ navigation }) {
       )}
     </View>
   );
+  <View style={{ height: 300, backgroundColor: "black", width: 300 }}>
+        <Engine />
+    </View>
   */
 
   return (
     <View style={styles.container}>
+      
       <View>
         <Button
           title="Jouer en ligne"
