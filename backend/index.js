@@ -25,6 +25,17 @@ const updateClientsViewTimers = (game) => {
   );
 };
 
+const updateClientViewDecks = (game) => {
+  game.player1Socket.emit(
+    "game.deck.view-state",
+    GameService.send.forPlayer.deckViewState("player:1", game.gameState)
+  );
+  game.player2Socket.emit(
+    "game.deck.view-state",
+    GameService.send.forPlayer.deckViewState("player:2", game.gameState)
+  );
+};
+
 const newPlayerInQueue = (socket) => {
   queue.push(socket);
 
@@ -52,6 +63,7 @@ const createGame = (player1Socket, player2Socket) => {
     "game.start",
     GameService.send.forPlayer.viewGameState("player:1", games[gameIndex])
   );
+
   games[gameIndex].player2Socket.emit(
     "game.start",
     GameService.send.forPlayer.viewGameState("player:2", games[gameIndex])
@@ -74,6 +86,7 @@ const createGame = (player1Socket, player2Socket) => {
 
     // On notifie finalement les clients que les données sont mises à jour.
     updateClientsViewTimers(games[gameIndex]);
+    updateClientViewDecks(games[gameIndex]);
   }, 1000);
 
   player1Socket.on("disconnect", () => {
