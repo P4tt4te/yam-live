@@ -4,6 +4,7 @@ import { SocketContext } from "../../../contexts/socket.context";
 import Dice from "./dice.component";
 
 const PlayerDeck = () => {
+  
   const socket = useContext(SocketContext);
   const [displayPlayerDeck, setDisplayPlayerDeck] = useState(false);
   const [dices, setDices] = useState(Array(5).fill(false));
@@ -12,20 +13,27 @@ const PlayerDeck = () => {
   const [rollsMaximum, setRollsMaximum] = useState(3);
 
   useEffect(() => {
+
     socket.on("game.deck.view-state", (data) => {
-      setDisplayPlayerDeck(data["displayPlayerDeck"]);
-      if (data["displayPlayerDeck"]) {
-        setDisplayRollButton(data["displayRollButton"]);
-        setRollsCounter(data["rollsCounter"]);
-        setRollsMaximum(data["rollsMaximum"]);
-        setDices(data["dices"]);
+
+      setDisplayPlayerDeck(data['displayPlayerDeck']);
+
+      if (data['displayPlayerDeck']) {
+        setDisplayRollButton(data['displayRollButton']);
+        setRollsCounter(data['rollsCounter']);
+        setRollsMaximum(data['rollsMaximum']);
+        setDices(data['dices']);
       }
+
     });
+
   }, []);
 
   const toggleDiceLock = (index) => {
+
     const newDices = [...dices];
-    if (newDices[index].value !== "" && displayRollButton) {
+
+    if (newDices[index].value !== '' && displayRollButton) {
       socket.emit("game.dices.lock", newDices[index].id);
     }
   };
@@ -37,10 +45,14 @@ const PlayerDeck = () => {
   };
 
   return (
+
     <View style={styles.deckPlayerContainer}>
+
       {displayPlayerDeck && (
+
         <>
           {displayRollButton && (
+
             <>
               <View style={styles.rollInfoContainer}>
                 <Text style={styles.rollInfoText}>
@@ -48,6 +60,7 @@ const PlayerDeck = () => {
                 </Text>
               </View>
             </>
+
           )}
 
           <View style={styles.diceContainer}>
@@ -63,14 +76,17 @@ const PlayerDeck = () => {
           </View>
 
           {displayRollButton && (
+
             <>
               <TouchableOpacity style={styles.rollButton} onPress={rollDices}>
                 <Text style={styles.rollButtonText}>Roll</Text>
               </TouchableOpacity>
             </>
+
           )}
         </>
       )}
+
     </View>
   );
 };
@@ -81,7 +97,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderBottomWidth: 1,
-    borderColor: "black",
+    borderColor: "black"
   },
   rollInfoContainer: {
     marginBottom: 10,
@@ -103,7 +119,7 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "black",
+    backgroundColor: "black"
   },
   rollButtonText: {
     fontSize: 18,

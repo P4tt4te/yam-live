@@ -6,15 +6,13 @@ import Dice from "./dice.component";
 const OpponentDeck = () => {
   const socket = useContext(SocketContext);
   const [displayOpponentDeck, setDisplayOpponentDeck] = useState(false);
-  const [opponentDices, setOpponentDices] = useState(
-    Array(5).fill({ value: "", locked: false })
-  );
+  const [opponentDices, setOpponentDices] = useState(Array(5).fill({ value: "", locked: false }));
 
   useEffect(() => {
     socket.on("game.deck.view-state", (data) => {
-      setDisplayOpponentDeck(data["displayOpponentDeck"]);
-      if (data["displayOpponentDeck"]) {
-        setOpponentDices(data["dices"]);
+      setDisplayOpponentDeck(data['displayOpponentDeck']);
+      if (data['displayOpponentDeck']) {
+        setOpponentDices(data['dices']);
       }
     });
   }, []);
@@ -43,7 +41,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderBottomWidth: 1,
-    borderColor: "black",
+    borderColor: "black"
   },
   diceContainer: {
     flexDirection: "row",

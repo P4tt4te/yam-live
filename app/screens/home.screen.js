@@ -1,34 +1,8 @@
-import { useEffect, useState } from "react";
-import { StyleSheet, Text, View, Button } from "react-native";
-import io from "socket.io-client";
-import Engine from "../components/engine.component";
+import { StyleSheet, View, Button } from "react-native";
 
-// Replace this URL with your own socket-io host, or start the backend locally
-const socketEndpoint = "http://10.60.104.103:3000";
 const enableEngine = false;
 
 export default function HomeScreen({ navigation }) {
-  const [hasConnection, setConnection] = useState(false);
-  const [time, setTime] = useState(null);
-
-  useEffect(function didMount() {
-    const socket = io(socketEndpoint, {
-      transports: ["websocket"],
-    });
-
-    socket.io.on("open", () => setConnection(true));
-    socket.io.on("close", () => setConnection(false));
-
-    socket.on("time-msg", (data) => {
-      setTime(new Date(data.time).toString());
-    });
-
-    return function didUnmount() {
-      socket.disconnect();
-      socket.removeAllListeners();
-    };
-  }, []);
-
   return (
     <View style={styles.container}>
       {enableEngine && (
@@ -45,7 +19,6 @@ export default function HomeScreen({ navigation }) {
           <Engine />
         </View>
       )}
-
       <View>
         <Button
           title="Jouer en ligne"
@@ -68,6 +41,5 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     alignItems: "center",
     justifyContent: "center",
-    position: "relative",
   },
 });
