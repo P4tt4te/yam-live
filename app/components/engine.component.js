@@ -9,7 +9,7 @@ const Engine = () => {
   return (
     <Canvas
       gl={{ physicallyCorrectLights: true }}
-      camera={{ position: [0, 0, 10] }}
+      camera={{ position: [0, 0, 10], rotation: [0, 0, Math.PI / 4] }}
       onCreated={(state) => {
         const _gl = state.gl.getContext();
         const pixelStorei = _gl.pixelStorei.bind(_gl);

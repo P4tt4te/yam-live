@@ -290,9 +290,7 @@ const GameService = {
             return availableCombinations;
         }
     },
-
     grid: {
-
         resetcanBeCheckedCells: (grid) => {
             const updatedGrid = grid.map(row => row.map(cell => {
                 return { ...cell, canBeChecked: false };    
@@ -300,9 +298,7 @@ const GameService = {
 
             return updatedGrid;
         },
-
         updateGridAfterSelectingChoice: (idSelectedChoice, grid) => {
-
             const updatedGrid = grid.map(row => row.map(cell => {
                 if (cell.id === idSelectedChoice && cell.owner === null) {
                     return { ...cell, canBeChecked: true };
@@ -313,7 +309,6 @@ const GameService = {
 
             return updatedGrid;
         },
-
         selectCell: (idCell, rowIndex, cellIndex, currentTurn, grid) => {
             const updatedGrid = grid.map((row, rowIndexParsing) => row.map((cell, cellIndexParsing) => {
                 if ((cell.id === idCell) && (rowIndexParsing === rowIndex) && (cellIndexParsing === cellIndex)) {
@@ -338,7 +333,6 @@ const GameService = {
             }
             return -1;
         },
-
         findGameIndexBySocketId: (games, socketId) => {
             for (let i = 0; i < games.length; i++) {
                 if (games[i].player1Socket.id === socketId || games[i].player2Socket.id === socketId) {
