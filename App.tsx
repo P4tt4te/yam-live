@@ -11,7 +11,13 @@ import "text-encoding-polyfill";
 import { WebAssembly } from "polywasm";
 */
 
-const Stack = createStackNavigator();
+type RootStackParamList = {
+  HomeScreen: undefined;
+  OnlineGameScreen: undefined;
+  VsBotGameScreen: undefined;
+};
+
+const Stack = createStackNavigator<RootStackParamList>();
 LogBox.ignoreAllLogs(true);
 
 function App() {

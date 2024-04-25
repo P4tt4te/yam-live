@@ -176,13 +176,31 @@ const GameService = {
       },
     },
   },
-
   timer: {
     getTurnDuration: () => {
       return TURN_DURATION;
     },
   },
+  score: {
+    getCurrentScore: (playerKey, gameState) => {
+      const grid = gameState.grid;
+      let totalScore = 0;
 
+      let currentX = 0;
+      let currentY = 0;
+
+      for (let y = 0; y < grid.length; y++) {
+        const line = grid[y];
+        let emptyCaseCount = 0;
+
+        /*
+        line.forEach((case) => {
+
+        })
+        */
+      }
+    },
+  },
   dices: {
     roll: (dicesToRoll) => {
       const rolledDices = dicesToRoll.map((dice) => {
@@ -208,7 +226,6 @@ const GameService = {
       });
       return rolledDices;
     },
-
     lockEveryDice: (dicesToLock) => {
       const lockedDices = dicesToLock.map((dice) => ({
         ...dice,
@@ -217,7 +234,6 @@ const GameService = {
       return lockedDices;
     },
   },
-
   choices: {
     findCombinations: (dices, isDefi, isSec) => {
       const availableCombinations = [];
@@ -341,7 +357,6 @@ const GameService = {
       return updatedGrid;
     },
   },
-
   utils: {
     // Return game index in global games array by id
     findGameIndexById: (games, idGame) => {

@@ -60,6 +60,7 @@ const PlayerDeck = () => {
                 locked={diceData.locked}
                 value={diceData.value}
                 onPress={toggleDiceLock}
+                opponent={false}
               />
             ))}
           </View>
@@ -105,7 +106,6 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: "black",
   },
   rollButtonText: {
     fontSize: 18,
