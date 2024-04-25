@@ -191,19 +191,22 @@ const GameService = {
       const grid = gameState.grid;
       let totalScore = 0;
 
-      let currentX = 0;
-      let currentY = 0;
-
       for (let y = 0; y < grid.length; y++) {
         const line = grid[y];
-        let emptyCaseCount = 0;
+        let playerCaseCount = 0;
 
-        /*
-        line.forEach((case) => {
-          
-        })
-        */
+        for (let x = 0; x < line.length; x++) {
+          line[x].owner === playerKey
+            ? playerCaseCount++
+            : (playerCaseCount = 0);
+
+          if (playerCaseCount >= 3) {
+            totalScore += 1;
+          }
+        }
       }
+
+      return totalScore;
     },
   },
   dices: {
@@ -395,4 +398,4 @@ const GameService = {
   },
 };
 
-module.exports = GameService;
+export default GameService;
