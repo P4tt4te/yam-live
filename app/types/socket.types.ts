@@ -5,6 +5,7 @@ export interface ServerToClientEvents {
   "game.score": (data: any) => any;
   "game.grid.view-state": (data: any) => any;
   "game.deck.view-state": (data: any) => void;
+  "game.choices.view-state": (data: any) => void;
 }
 
 export interface ClientToServerEvents {
@@ -13,6 +14,7 @@ export interface ClientToServerEvents {
   "game.grid.selected": (any) => void;
   "game.dices.lock": (data: any) => any;
   "game.dices.roll": () => void;
+  "game.choices.selected": (data: any) => any;
 }
 
 export interface InterServerEvents {}

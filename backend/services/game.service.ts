@@ -1,3 +1,10 @@
+import {
+  GameState,
+  PlayerKey,
+  GridLine,
+  DeckDice,
+} from "../types/GameService.types";
+
 // Durée d'un tour en secondes
 const TURN_DURATION = 30;
 
@@ -20,7 +27,7 @@ const CHOICES_INIT = {
   availableChoices: [],
 };
 
-const GRID_INIT = [
+const GRID_INIT: GridLine[][] = [
   [
     { viewContent: "1", id: "brelan1", owner: null, canBeChecked: false },
     { viewContent: "3", id: "brelan3", owner: null, canBeChecked: false },
@@ -74,14 +81,12 @@ const ALL_COMBINATIONS = [
   { value: "Défi", id: "defi" },
 ];
 
-const GAME_INIT = {
+const GAME_INIT: { gameState: GameState } = {
   gameState: {
     currentTurn: "player:1",
     timer: null,
     player1Score: 0,
     player2Score: 0,
-    choices: {},
-    deck: {},
   },
 };
 
@@ -131,19 +136,19 @@ const GameService = {
           inGame: false,
         };
       },
-      gameTimer: (playerKey, gameState) => {
+      gameTimer: (playerKey: PlayerKey, gameState: GameState) => {
         const playerTimer =
           gameState.currentTurn === playerKey ? gameState.timer : 0;
         const opponentTimer =
           gameState.currentTurn === playerKey ? 0 : gameState.timer;
         return { playerTimer: playerTimer, opponentTimer: opponentTimer };
       },
-      gameScore: (playerKey, gameState) => {
+      gameScore: (playerKey: PlayerKey, gameState: GameState) => {
         const playerScore = 0;
         const opponentScore = 0;
         return { playerScore: playerScore, opponentScore: opponentScore };
       },
-      deckViewState: (playerKey, gameState) => {
+      deckViewState: (playerKey: PlayerKey, gameState: GameState) => {
         const deckViewState = {
           displayPlayerDeck: gameState.currentTurn === playerKey,
           displayOpponentDeck: gameState.currentTurn !== playerKey,
@@ -155,7 +160,7 @@ const GameService = {
         };
         return deckViewState;
       },
-      choicesViewState: (playerKey, gameState) => {
+      choicesViewState: (playerKey: PlayerKey, gameState: GameState) => {
         const choicesViewState = {
           displayChoices: true,
           canMakeChoice: playerKey === gameState.currentTurn,
@@ -165,7 +170,7 @@ const GameService = {
 
         return choicesViewState;
       },
-      gridViewState: (playerKey, gameState) => {
+      gridViewState: (playerKey: PlayerKey, gameState: GameState) => {
         return {
           displayGrid: true,
           canSelectCells:
@@ -182,7 +187,7 @@ const GameService = {
     },
   },
   score: {
-    getCurrentScore: (playerKey, gameState) => {
+    getCurrentScore: (playerKey: PlayerKey, gameState: GameState) => {
       const grid = gameState.grid;
       let totalScore = 0;
 
@@ -195,14 +200,14 @@ const GameService = {
 
         /*
         line.forEach((case) => {
-
+          
         })
         */
       }
     },
   },
   dices: {
-    roll: (dicesToRoll) => {
+    roll: (dicesToRoll: DeckDice[]) => {
       const rolledDices = dicesToRoll.map((dice) => {
         if (dice.value === "") {
           // Si la valeur du dé est vide, alors on le lance en mettant le flag locked à false
