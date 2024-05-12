@@ -1,7 +1,7 @@
 import { StyleSheet, View, Button } from "react-native";
 import Engine from "../components/engine.component";
 
-const enableEngine = false;
+const enableEngine = true;
 
 export default function HomeScreen({ navigation }) {
   return (

@@ -9,7 +9,7 @@ const Engine = () => {
   return (
     <Canvas
       gl={{ physicallyCorrectLights: true }}
-      camera={{ position: [0, 0, 10], rotation: [0, 0, Math.PI / 4] }}
+      camera={{ position: [0, 0, 15], rotation: [0, 0, Math.PI / 4] }}
       onCreated={(state) => {
         const _gl = state.gl.getContext();
         const pixelStorei = _gl.pixelStorei.bind(_gl);
@@ -22,9 +22,14 @@ const Engine = () => {
         };
       }}
     >
-      <pointLight position={[-2, -3, 0]} intensity={100} />
-      <pointLight position={[6, 10, 6]} intensity={1000} />
-      <EngineDice />
+      <pointLight position={[3, 3, 10]} intensity={1000} />
+      <group position={[0, 0, 0.8]}>
+        <EngineDice position={[-4, 0, 0]} number={1} />
+        <EngineDice position={[4, 0, 0]} number={2} />
+        <EngineDice position={[0, 0, 0]} number={3} />
+        <EngineDice position={[4, -4, 0]} number={4} />
+        <EngineDice position={[-4, 4, 0]} number={5} />
+      </group>
       <EngineBoard />
     </Canvas>
   );

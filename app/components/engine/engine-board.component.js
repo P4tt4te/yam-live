@@ -2,8 +2,8 @@ import { Plane } from "@react-three/drei";
 
 const EngineBoard = () => {
   return (
-    <Plane args={[4, 4]} position={[0, 0, 0]} rotation={[0,-Math.PI / 8,0]}>
-      <meshBasicMaterial color="green" />
+    <Plane args={[30, 30]} position={[0, 0, 0]} rotation={[0,0,0]}>
+      <meshStandardMaterial color="green" />
     </Plane>
   );
 };

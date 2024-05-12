@@ -20,7 +20,8 @@
     "three": "^0.163.0"
   },
   "scripts": {
-    "start": "yarn expo start"
+    "start": "expo start",
+    "usb": "expo start --localhost --android"
   },
   "devDependencies": {
     "@babel/core": "^7.19.3",
