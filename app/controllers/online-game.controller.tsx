@@ -2,8 +2,15 @@ import React, { useEffect, useState, useContext } from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { SocketContext } from "../contexts/socket.context";
 import Board from "../components/board/board.component";
+import Result from "../components/board/scores/result.component";
 
-export default function OnlineGameController() {
+interface OnlineGameControllerProps {
+  returnToMainMenu: () => void;
+}
+
+export default function OnlineGameController({
+  returnToMainMenu,
+}: OnlineGameControllerProps) {
   const socket = useContext(SocketContext);
 
   const [inQueue, setInQueue] = useState(false);
@@ -44,6 +51,7 @@ export default function OnlineGameController() {
       {inGame && (
         <>
           <Board />
+          <Result returnToMainMenu={returnToMainMenu} />
         </>
       )}
     </View>

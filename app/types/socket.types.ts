@@ -6,6 +6,7 @@ export interface ServerToClientEvents {
   "game.grid.view-state": (data: any) => any;
   "game.deck.view-state": (data: any) => void;
   "game.choices.view-state": (data: any) => void;
+  "game.end": (data: boolean) => void;
 }
 
 export interface ClientToServerEvents {

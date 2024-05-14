@@ -23,7 +23,9 @@ export default function OnlineGameScreen({ navigation }) {
 
       {socket && (
         <>
-          <OnlineGameController />
+          <OnlineGameController
+            returnToMainMenu={() => navigation.navigate("HomeScreen")}
+          />
         </>
       )}
     </View>

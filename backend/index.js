@@ -291,6 +291,16 @@ io.on("connection", (socket) => {
       winner = game_service_1.default.utils.checkWinnerWithOutOfTiles(
         games[gameIndex].gameState
       );
+    } else {
+      // Si un winner est désigné, on envoi un message pour le notifier
+      games[gameIndex].player1Socket.emit(
+        "game.end",
+        winner === "player:1"
+      );
+      games[gameIndex].player2Socket.emit(
+        "game.end",
+        winner === "player:2"
+      );
     }
 
     console.log(

@@ -170,6 +170,9 @@ const GameService = {
           grid: gameState.grid,
         };
       },
+      finalState: (playerKey, winner) => {
+        return playerKey === winner;
+      },
     },
   },
   timer: {
