@@ -1,25 +1,8 @@
 import { StyleSheet, View, Button } from "react-native";
-import Engine from "../components/engine.component";
-
-const enableEngine = true;
 
 export default function HomeScreen({ navigation }) {
   return (
     <View style={styles.container}>
-      {enableEngine && (
-        <View
-          style={{
-            position: "absolute",
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: "black",
-          }}
-        >
-          <Engine />
-        </View>
-      )}
       <View>
         <Button
           title="Jouer en ligne"

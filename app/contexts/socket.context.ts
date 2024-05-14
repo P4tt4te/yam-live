@@ -11,7 +11,7 @@ import {
 console.log("Emulation OS Platform: ", Platform.OS);
 // Also usable : "http://10.0.2.2:3000"
 export const socketEndpoint =
-  Platform.OS === "web" ? "http://localhost:3000" : "http://192.168.0.25:3000";
+  Platform.OS === "web" ? "http://localhost:3000" : "http://192.168.0.23:3000";
 
 export const socket: Socket<ServerToClientEvents, ClientToServerEvents> = io(
   socketEndpoint,

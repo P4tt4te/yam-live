@@ -3,6 +3,7 @@ import diceAsset from "../../assets/dice.glb";
 import { useRef, useMemo, useState, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import { MeshStandardMaterial } from "three";
+import { DiceLerp } from "@/app/helpers/diceLerp.helpers";
 
 const EngineDice = (props) => {
   const { scene } = useGLTF(diceAsset);
@@ -10,16 +11,29 @@ const EngineDice = (props) => {
   const mesh = useRef();
   const copiedScene = useMemo(() => scene.clone(), [scene]);
 
-  const [number, setNumber] = useState(props.number);
-  const [isSelected, setIsSelected] = useState(false);
+  const [isSelected, setIsSelected] = useState(props.isLocked);
 
   useFrame((state, delta) => {
-    animationGroup.current.rotation.z += delta;
+    animationGroup.current.rotation.y = DiceLerp(
+      animationGroup.current.rotation.y,
+      -Math.PI * 6
+    );
+    animationGroup.current.rotation.x = DiceLerp(
+      animationGroup.current.rotation.y,
+      -Math.PI * 6
+    );
   });
+
+  const restartAnimation = () => {
+    if (!animationGroup.current) return;
+    animationGroup.current.rotation.x = 0;
+    animationGroup.current.rotation.y = 0;
+  };
 
   useEffect(() => {
     if (!mesh.current) return;
-    switch (number) {
+    restartAnimation();
+    switch (props.number) {
       case 1:
         mesh.current.rotation.x = 0;
         mesh.current.rotation.y = 0;
@@ -45,13 +59,17 @@ const EngineDice = (props) => {
         mesh.current.rotation.y = 0;
         break;
     }
-  }, [mesh, number]);
+  }, [mesh, props.number]);
 
   //<meshStandardMaterial transparent opacity={1} color="red" />
 
+  useEffect(() => {
+    console.log("isLocked : ", props.isLocked);
+  }, [props]);
+
   return (
-    <group {...props} scale={props.scale ? props.scale : 0.1}>
-      <group onClick={() => setIsSelected(!isSelected)} ref={animationGroup}>
+    <group position={props.position} scale={props.scale ? props.scale : 0.1}>
+      <group ref={animationGroup}>
         <Box
           args={[21, 21, 21]}
           material={
@@ -61,6 +79,11 @@ const EngineDice = (props) => {
               transparent: true,
             })
           }
+          onClick={(e) => {
+            console.log("onClick");
+            setIsSelected(!isSelected);
+            props.onPress();
+          }}
         />
         <primitive ref={mesh} object={copiedScene} />
       </group>

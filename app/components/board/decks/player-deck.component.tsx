@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { View, TouchableOpacity, Text, StyleSheet } from "react-native";
 import { SocketContext } from "../../../contexts/socket.context";
 import Dice from "./dice.component";
+import Engine from "../../engine.component";
 
 const PlayerDeck = () => {
   const socket = useContext(SocketContext);
@@ -25,6 +26,7 @@ const PlayerDeck = () => {
   }, []);
 
   const toggleDiceLock = (index) => {
+    console.log("toggleDiceLock");
     const newDices = [...dices];
 
     if (newDices[index].value !== "" && displayRollButton) {
@@ -37,6 +39,19 @@ const PlayerDeck = () => {
       socket.emit("game.dices.roll");
     }
   };
+
+  /*
+    {dices.map((diceData, index) => (
+              <Dice
+                key={`${diceData.id}-${index}`}
+                index={index}
+                locked={diceData.locked}
+                value={diceData.value}
+                onPress={toggleDiceLock}
+                opponent={false}
+              />
+            ))}
+  */
 
   return (
     <View style={styles.deckPlayerContainer}>
@@ -53,25 +68,30 @@ const PlayerDeck = () => {
           )}
 
           <View style={styles.diceContainer}>
-            {dices.map((diceData, index) => (
-              <Dice
-                key={`${diceData.id}-${index}`}
-                index={index}
-                locked={diceData.locked}
-                value={diceData.value}
-                onPress={toggleDiceLock}
-                opponent={false}
-              />
-            ))}
+            {displayRollButton && (
+              <>
+                <TouchableOpacity style={styles.rollButton} onPress={rollDices}>
+                  <Text style={styles.rollButtonText}>Roll</Text>
+                </TouchableOpacity>
+              </>
+            )}
           </View>
-
-          {displayRollButton && (
-            <>
-              <TouchableOpacity style={styles.rollButton} onPress={rollDices}>
-                <Text style={styles.rollButtonText}>Roll</Text>
-              </TouchableOpacity>
-            </>
-          )}
+          <View
+            style={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              backgroundColor: "black",
+            }}
+          >
+            <Engine
+              dices={dices}
+              isOpponent={false}
+              toggleDiceLock={(index) => toggleDiceLock(index)}
+            />
+          </View>
         </>
       )}
     </View>
@@ -81,13 +101,16 @@ const PlayerDeck = () => {
 const styles = StyleSheet.create({
   deckPlayerContainer: {
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "space-between",
+    paddingVertical: 5,
     alignItems: "center",
     borderBottomWidth: 1,
     borderColor: "black",
   },
   rollInfoContainer: {
     marginBottom: 10,
+    backgroundColor: "transparent",
+    zIndex: 10,
   },
   rollInfoText: {
     fontSize: 14,
@@ -95,9 +118,9 @@ const styles = StyleSheet.create({
   },
   diceContainer: {
     flexDirection: "row",
-    width: "70%",
     justifyContent: "space-between",
     marginBottom: 10,
+    zIndex: 10,
   },
   rollButton: {
     width: "30%",

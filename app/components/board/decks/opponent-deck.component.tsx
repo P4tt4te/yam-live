@@ -2,6 +2,7 @@ import React, { useState, useContext, useEffect } from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { SocketContext } from "../../../contexts/socket.context";
 import Dice from "./dice.component";
+import Engine from "../../engine.component";
 
 const OpponentDeck = () => {
   const socket = useContext(SocketContext);
@@ -19,10 +20,8 @@ const OpponentDeck = () => {
     });
   }, []);
 
-  return (
-    <View style={styles.deckOpponentContainer}>
-      {displayOpponentDeck && (
-        <View style={styles.diceContainer}>
+  /*
+  <View style={styles.diceContainer}>
           {opponentDices.map((diceData, index) => (
             <Dice
               key={index}
@@ -33,6 +32,23 @@ const OpponentDeck = () => {
               opponent={true}
             />
           ))}
+        </View>
+  */
+
+  return (
+    <View style={styles.deckOpponentContainer}>
+      {displayOpponentDeck && (
+        <View
+          style={{
+            position: "absolute",
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: "black",
+          }}
+        >
+          <Engine dices={opponentDices} isOpponent toggleDiceLock={() => null} />
         </View>
       )}
     </View>
@@ -46,6 +62,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderBottomWidth: 1,
     borderColor: "black",
+    position: "relative",
   },
   diceContainer: {
     flexDirection: "row",
