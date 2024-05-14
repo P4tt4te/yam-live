@@ -277,13 +277,31 @@ io.on("connection", (socket) => {
       games[gameIndex].gameState.currentTurn,
       games[gameIndex].gameState.grid
     );
+    games[gameIndex].gameState = game_service_1.default.utils.decrementTiles(
+      games[gameIndex].gameState
+    );
     // Here calcul score
-    const { playerScores, winner } =
+    let { playerScores, winner } =
       game_service_1.default.utils.calculateScoreAndWinner(
         games[gameIndex].gameState.grid
       );
-    console.log("scores des joueurs : ", playerScores, playerScores["'1'"], playerScores["1"],playerScores[`'1'`]);
-    console.log("gagnant : ", winner);``
+
+    // Si aucun winner n'est encore désigné checker si un des 2 joueurs n'a plus de tiles
+    if (winner === null) {
+      winner = game_service_1.default.utils.checkWinnerWithOutOfTiles(
+        games[gameIndex].gameState
+      );
+    }
+
+    console.log(
+      "scores des joueurs : ",
+      playerScores,
+      playerScores["'1'"],
+      playerScores["1"],
+      playerScores[`'1'`]
+    );
+    console.log("gagnant : ", winner);
+    ``;
     games[gameIndex].gameState.player1Score = playerScores["1"];
     games[gameIndex].gameState.player2Score = playerScores["2"];
     games[gameIndex].player1Socket.emit(

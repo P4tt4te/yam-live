@@ -76,7 +76,9 @@ const GAME_INIT = {
     currentTurn: "player:1",
     timer: null,
     player1Score: 0,
+    player1Tiles: 12,
     player2Score: 0,
+    player2Tiles: 12,
   },
 };
 const GameService = {
@@ -368,6 +370,15 @@ const GameService = {
       }
       return -1;
     },
+    decrementTiles: (gameState) => {
+      let tiles =
+        gameState.currentTurn === "player:1"
+          ? gameState.player1Tiles
+          : gameState.player2Tiles;
+      tiles -= 1;
+      console.log("tiles : ", tiles);
+      return gameState;
+    },
     calculateScoreAndWinner: (grid) => {
       // Fonction pour vérifier si les pions sont alignés
       function checkPointsAlignment(points) {
@@ -480,6 +491,21 @@ const GameService = {
       }
 
       return { playerScores, winner };
+    },
+    checkWinnerWithOutOfTiles: (gameState) => {
+      const tiles =
+        gameState.currentTurn === "player:1"
+          ? gameState.player1Tiles
+          : gameState.player2Tiles;
+
+      const possibleWinner =
+        gameState.currentTurn === "player:1" ? "player:2" : "player:1";
+
+      if (tiles <= 0) {
+        return possibleWinner;
+      }
+
+      return null;
     },
   },
 };
