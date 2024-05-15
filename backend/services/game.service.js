@@ -511,5 +511,68 @@ const GameService = {
       return null;
     },
   },
+  bot: {
+    performAction: (game) => {
+      // Logique pour les actions du bot
+      if (game.gameState.currentTurn === "player:2") {
+        setTimeout(() => {
+          // Simule un lancer de dés pour le bot
+          game.gameState.deck.dices = GameService.dices.roll(
+            game.gameState.deck.dices
+          );
+          game.gameState.deck.rollsCounter++;
+          game.gameState.choices.availableChoices =
+            GameService.choices.findCombinations(
+              game.gameState.deck.dices,
+              false,
+              game.gameState.deck.rollsCounter === 2
+            );
+          if (game.gameState.choices.availableChoices.length > 0) {
+            game.gameState.choices.idSelectedChoice =
+              game.gameState.choices.availableChoices[0].id;
+          }
+          game.gameState.grid = GameService.grid.resetcanBeCheckedCells(
+            game.gameState.grid
+          );
+          game.gameState.grid = GameService.grid.updateGridAfterSelectingChoice(
+            game.gameState.choices.idSelectedChoice,
+            game.gameState.grid
+          );
+          game.gameState.grid = GameService.grid.selectCell(
+            game.gameState.choices.idSelectedChoice,
+            0,
+            0,
+            "player:2",
+            game.gameState.grid
+          );
+          game.gameState = GameService.utils.decrementTiles(game.gameState);
+
+          let { playerScores, winner } =
+            GameService.utils.calculateScoreAndWinner(game.gameState.grid);
+          if (winner === null) {
+            winner = GameService.utils.checkWinnerWithOutOfTiles(
+              game.gameState
+            );
+          } else {
+            game.player1Socket.emit("game.end", winner === "player:1");
+          }
+          game.gameState.player1Score = playerScores["1"];
+          game.gameState.player2Score = playerScores["2"];
+          game.player1Socket.emit(
+            "game.score",
+            GameService.send.forPlayer.gameScore("player:1", game.gameState)
+          );
+          game.gameState.currentTurn = "player:1";
+          game.gameState.timer = GameService.timer.getTurnDuration();
+          game.gameState.deck = GameService.init.deck();
+          game.gameState.choices = GameService.init.choices();
+          game.player1Socket.emit(
+            "game.timer",
+            GameService.send.forPlayer.gameTimer("player:1", game.gameState)
+          );
+        }, 2000);
+      }
+    },
+  },
 };
 exports.default = GameService;

@@ -45,6 +45,8 @@ export default function OnlineGameController({
       {inQueue && (
         <>
           <Text style={styles.paragraph}>Waiting for another player...</Text>
+          <Text style={styles.paragraph}>A game with a bot automaticaly start in 5 seconds</Text>
+          
         </>
       )}
 

@@ -16,6 +16,16 @@ const io = require("socket.io")(http);
 // ---------------------------------------------------
 let games = [];
 let queue = [];
+const botSocket = {
+  id: "bot",
+  emit: (event, data) => {
+    console.log(`Bot received event ${event} with data`, data);
+  },
+  on: (event, callback) => {
+    console.log(`Bot is set to listen for event ${event}`);
+  },
+};
+
 // ------------------------------------
 // -------- EMITTER METHODS -----------
 // ------------------------------------
@@ -87,22 +97,17 @@ const updateClientsViewGrid = (game) => {
 // -------- GAME METHODS -----------
 // ---------------------------------
 const createGame = (player1Socket, player2Socket) => {
-  // init objet (game) with this first level of structure:
-  // - gameState : { .. evolutive object .. }
-  // - idGame : just in case ;)
-  // - player1Socket: socket instance key "joueur:1"
-  // - player2Socket: socket instance key "joueur:2"
   const newGame = game_service_1.default.init.gameState();
   newGame["idGame"] = (0, uniqid_1.default)();
   newGame["player1Socket"] = player1Socket;
-  newGame["player2Socket"] = player2Socket;
-  // push game into 'games' global array
+  newGame["player2Socket"] = player2Socket || botSocket;
+  newGame["isBotGame"] = !player2Socket;
   games.push(newGame);
   const gameIndex = game_service_1.default.utils.findGameIndexById(
     games,
     newGame.idGame
   );
-  // just notifying screens that game is starting
+
   games[gameIndex].player1Socket.emit(
     "game.start",
     game_service_1.default.send.forPlayer.viewGameState(
@@ -110,34 +115,29 @@ const createGame = (player1Socket, player2Socket) => {
       games[gameIndex]
     )
   );
-  games[gameIndex].player2Socket.emit(
-    "game.start",
-    game_service_1.default.send.forPlayer.viewGameState(
-      "player:2",
-      games[gameIndex]
-    )
-  );
-  // we update views
+  if (player2Socket) {
+    games[gameIndex].player2Socket.emit(
+      "game.start",
+      game_service_1.default.send.forPlayer.viewGameState(
+        "player:2",
+        games[gameIndex]
+      )
+    );
+  }
   updateClientsViewTimers(games[gameIndex]);
   updateClientsViewDecks(games[gameIndex]);
   updateClientsViewGrid(games[gameIndex]);
-  // timer every second
+
   const gameInterval = setInterval(() => {
-    // timer variable decreased
     games[gameIndex].gameState.timer--;
-    // emit timer to both clients every seconds
     updateClientsViewTimers(games[gameIndex]);
-    // if timer is down to 0, we end turn
     if (games[gameIndex].gameState.timer === 0) {
-      // switch currentTurn variable
       games[gameIndex].gameState.currentTurn =
         games[gameIndex].gameState.currentTurn === "player:1"
           ? "player:2"
           : "player:1";
-      // reset timer
       games[gameIndex].gameState.timer =
         game_service_1.default.timer.getTurnDuration();
-      // reset deck / choices / grid states
       games[gameIndex].gameState.deck = game_service_1.default.init.deck();
       games[gameIndex].gameState.choices =
         game_service_1.default.init.choices();
@@ -145,33 +145,27 @@ const createGame = (player1Socket, player2Socket) => {
         game_service_1.default.grid.resetcanBeCheckedCells(
           games[gameIndex].gameState.grid
         );
-      // reset views also
       updateClientsViewTimers(games[gameIndex]);
       updateClientsViewDecks(games[gameIndex]);
       updateClientsViewChoices(games[gameIndex]);
       updateClientsViewGrid(games[gameIndex]);
+
+      if (
+        games[gameIndex].isBotGame &&
+        games[gameIndex].gameState.currentTurn === "player:2"
+      ) {
+        performBotAction(games[gameIndex]);
+      }
     }
   }, 1000);
-  // remove intervals at deconnection
+
   player1Socket.on("disconnect", () => {
     clearInterval(gameInterval);
   });
-  player2Socket.on("disconnect", () => {
-    clearInterval(gameInterval);
-  });
-};
-const newPlayerInQueue = (socket) => {
-  queue.push(socket);
-  // 'queue' management
-  if (queue.length >= 2) {
-    const player1Socket = queue.shift();
-    const player2Socket = queue.shift();
-    createGame(player1Socket, player2Socket);
-  } else {
-    socket.emit(
-      "queue.added",
-      game_service_1.default.send.forPlayer.viewQueueState()
-    );
+  if (player2Socket) {
+    player2Socket.on("disconnect", () => {
+      clearInterval(gameInterval);
+    });
   }
 };
 // ---------------------------------------
@@ -293,14 +287,8 @@ io.on("connection", (socket) => {
       );
     } else {
       // Si un winner est désigné, on envoi un message pour le notifier
-      games[gameIndex].player1Socket.emit(
-        "game.end",
-        winner === "player:1"
-      );
-      games[gameIndex].player2Socket.emit(
-        "game.end",
-        winner === "player:2"
-      );
+      games[gameIndex].player1Socket.emit("game.end", winner === "player:1");
+      games[gameIndex].player2Socket.emit("game.end", winner === "player:2");
     }
 
     console.log(
@@ -358,6 +346,36 @@ io.on("connection", (socket) => {
     console.log(`[${socket.id}] socket disconnected - ${reason}`);
   });
 });
+
+const performBotAction = (game) => {
+  // Le bot effectue une action après un délai
+  setTimeout(() => {
+    // Simule un lancer de dés
+    io.emit("game.dices.roll", { id: "bot" });
+  }, 2000);
+};
+
+// Mise à jour de la file d'attente pour gérer un seul joueur et un bot
+const newPlayerInQueue = (socket) => {
+  queue.push(socket);
+  if (queue.length >= 2) {
+    const player1Socket = queue.shift();
+    const player2Socket = queue.shift();
+    createGame(player1Socket, player2Socket);
+  } else {
+    socket.emit(
+      "queue.added",
+      game_service_1.default.send.forPlayer.viewQueueState()
+    );
+    // Créer un jeu avec un bot après un délai
+    setTimeout(() => {
+      if (queue.length === 1) {
+        const player1Socket = queue.shift();
+        createGame(player1Socket, null); // Null pour le bot
+      }
+    }, 5000); // 5 secondes d'attente avant de créer une partie avec un bot
+  }
+};
 // -----------------------------------
 // -------- SERVER METHODS -----------
 // -----------------------------------
