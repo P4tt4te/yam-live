@@ -512,66 +512,135 @@ const GameService = {
     },
   },
   bot: {
-    performAction: (game) => {
-      // Logique pour les actions du bot
+    performAction: (
+      game,
+      updateClientsViewDecks,
+      updateClientsViewChoices,
+      updateClientsViewGrid,
+      updateClientsViewTimers
+    ) => {
       if (game.gameState.currentTurn === "player:2") {
         setTimeout(() => {
-          // Simule un lancer de dés pour le bot
-          game.gameState.deck.dices = GameService.dices.roll(
-            game.gameState.deck.dices
-          );
-          game.gameState.deck.rollsCounter++;
-          game.gameState.choices.availableChoices =
-            GameService.choices.findCombinations(
-              game.gameState.deck.dices,
-              false,
-              game.gameState.deck.rollsCounter === 2
+          if (
+            game.gameState.deck.rollsCounter < game.gameState.deck.rollsMaximum
+          ) {
+            // Simule un lancer de dés pour le bot
+            console.log("Bot rolling dice");
+            game.gameState.deck.dices = GameService.dices.roll(
+              game.gameState.deck.dices
             );
-          if (game.gameState.choices.availableChoices.length > 0) {
-            game.gameState.choices.idSelectedChoice =
-              game.gameState.choices.availableChoices[0].id;
+            game.gameState.deck.rollsCounter++;
+            updateClientsViewDecks(game);
+            if (
+              game.gameState.deck.rollsCounter ===
+              game.gameState.deck.rollsMaximum
+            ) {
+              GameService.bot.performChoice(
+                game,
+                updateClientsViewDecks,
+                updateClientsViewChoices,
+                updateClientsViewGrid,
+                updateClientsViewTimers
+              );
+            } else {
+              GameService.bot.performAction(
+                game,
+                updateClientsViewDecks,
+                updateClientsViewChoices,
+                updateClientsViewGrid,
+                updateClientsViewTimers
+              );
+            }
+          } else {
+            GameService.bot.performChoice(
+              game,
+              updateClientsViewDecks,
+              updateClientsViewChoices,
+              updateClientsViewGrid,
+              updateClientsViewTimers
+            );
           }
-          game.gameState.grid = GameService.grid.resetcanBeCheckedCells(
-            game.gameState.grid
-          );
+        }, 2000);
+      }
+    },
+
+    performChoice: (
+      game,
+      updateClientsViewDecks,
+      updateClientsViewChoices,
+      updateClientsViewGrid,
+      updateClientsViewTimers
+    ) => {
+      setTimeout(() => {
+        const availableChoices = GameService.choices.findCombinations(
+          game.gameState.deck.dices,
+          false,
+          game.gameState.deck.rollsCounter === 2
+        );
+        if (availableChoices.length > 0) {
+          const selectedChoice =
+            availableChoices[
+              Math.floor(Math.random() * availableChoices.length)
+            ];
+          game.gameState.choices.idSelectedChoice = selectedChoice.id;
           game.gameState.grid = GameService.grid.updateGridAfterSelectingChoice(
-            game.gameState.choices.idSelectedChoice,
+            selectedChoice.id,
             game.gameState.grid
           );
+          updateClientsViewChoices(game);
+          GameService.bot.performGridSelection(
+            game,
+            updateClientsViewDecks,
+            updateClientsViewChoices,
+            updateClientsViewGrid,
+            updateClientsViewTimers
+          );
+        }
+      }, 2000);
+    },
+
+    performGridSelection: (
+      game,
+      updateClientsViewDecks,
+      updateClientsViewChoices,
+      updateClientsViewGrid,
+      updateClientsViewTimers
+    ) => {
+      setTimeout(() => {
+        const cellToSelect = game.gameState.grid
+          .flat()
+          .find((cell) => cell.canBeChecked);
+        if (cellToSelect) {
           game.gameState.grid = GameService.grid.selectCell(
-            game.gameState.choices.idSelectedChoice,
-            0,
-            0,
+            cellToSelect.id,
+            cellToSelect.rowIndex,
+            cellToSelect.cellIndex,
             "player:2",
             game.gameState.grid
           );
           game.gameState = GameService.utils.decrementTiles(game.gameState);
-
-          let { playerScores, winner } =
+          const { playerScores, winner } =
             GameService.utils.calculateScoreAndWinner(game.gameState.grid);
-          if (winner === null) {
-            winner = GameService.utils.checkWinnerWithOutOfTiles(
-              game.gameState
-            );
-          } else {
-            game.player1Socket.emit("game.end", winner === "player:1");
-          }
           game.gameState.player1Score = playerScores["1"];
           game.gameState.player2Score = playerScores["2"];
+          updateClientsViewGrid(game);
           game.player1Socket.emit(
             "game.score",
             GameService.send.forPlayer.gameScore("player:1", game.gameState)
           );
-          game.gameState.currentTurn = "player:1";
-          game.gameState.timer = GameService.timer.getTurnDuration();
-          game.gameState.deck = GameService.init.deck();
-          game.gameState.choices = GameService.init.choices();
-          game.player1Socket.emit(
-            "game.timer",
-            GameService.send.forPlayer.gameTimer("player:1", game.gameState)
-          );
-        }, 2000);
-      }
+          if (winner) {
+            game.player1Socket.emit("game.end", winner === "player:1");
+          }
+        }
+
+        // Passe le tour au joueur humain
+        game.gameState.currentTurn = "player:1";
+        game.gameState.timer = GameService.timer.getTurnDuration();
+        updateClientsViewTimers(game);
+        updateClientsViewDecks(game);
+        updateClientsViewChoices(game);
+        updateClientsViewGrid(game);
+      }, 2000);
     },
   },
 };

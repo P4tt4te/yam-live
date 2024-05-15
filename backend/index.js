@@ -103,25 +103,16 @@ const createGame = (player1Socket, player2Socket) => {
   newGame["player2Socket"] = player2Socket || botSocket;
   newGame["isBotGame"] = !player2Socket;
   games.push(newGame);
-  const gameIndex = game_service_1.default.utils.findGameIndexById(
-    games,
-    newGame.idGame
-  );
+  const gameIndex = game_service_1.default.utils.findGameIndexById(games, newGame.idGame);
 
   games[gameIndex].player1Socket.emit(
     "game.start",
-    game_service_1.default.send.forPlayer.viewGameState(
-      "player:1",
-      games[gameIndex]
-    )
+    game_service_1.default.send.forPlayer.viewGameState("player:1", games[gameIndex])
   );
   if (player2Socket) {
     games[gameIndex].player2Socket.emit(
       "game.start",
-      game_service_1.default.send.forPlayer.viewGameState(
-        "player:2",
-        games[gameIndex]
-      )
+      game_service_1.default.send.forPlayer.viewGameState("player:2", games[gameIndex])
     );
   }
   updateClientsViewTimers(games[gameIndex]);
@@ -139,8 +130,7 @@ const createGame = (player1Socket, player2Socket) => {
       games[gameIndex].gameState.timer =
         game_service_1.default.timer.getTurnDuration();
       games[gameIndex].gameState.deck = game_service_1.default.init.deck();
-      games[gameIndex].gameState.choices =
-        game_service_1.default.init.choices();
+      games[gameIndex].gameState.choices = game_service_1.default.init.choices();
       games[gameIndex].gameState.grid =
         game_service_1.default.grid.resetcanBeCheckedCells(
           games[gameIndex].gameState.grid
@@ -150,11 +140,8 @@ const createGame = (player1Socket, player2Socket) => {
       updateClientsViewChoices(games[gameIndex]);
       updateClientsViewGrid(games[gameIndex]);
 
-      if (
-        games[gameIndex].isBotGame &&
-        games[gameIndex].gameState.currentTurn === "player:2"
-      ) {
-        performBotAction(games[gameIndex]);
+      if (games[gameIndex].isBotGame && games[gameIndex].gameState.currentTurn === "player:2") {
+        performBotAction(games[gameIndex], updateClientsViewDecks, updateClientsViewChoices, updateClientsViewGrid, updateClientsViewTimers);
       }
     }
   }, 1000);
@@ -347,14 +334,87 @@ io.on("connection", (socket) => {
   });
 });
 
-const performBotAction = (game) => {
-  // Le bot effectue une action après un délai
+const performBotAction = (game, updateClientsViewDecks, updateClientsViewChoices, updateClientsViewGrid, updateClientsViewTimers) => {
   setTimeout(() => {
-    // Simule un lancer de dés
-    io.emit("game.dices.roll", { id: "bot" });
+    const gameIndex = game_service_1.default.utils.findGameIndexById(games, game.idGame);
+
+    if (games[gameIndex].gameState.deck.rollsCounter < games[gameIndex].gameState.deck.rollsMaximum) {
+      // Simule un lancer de dés pour le bot
+      console.log("Bot rolling dice");
+      games[gameIndex].gameState.deck.dices = game_service_1.default.dices.roll(games[gameIndex].gameState.deck.dices);
+      games[gameIndex].gameState.deck.rollsCounter++;
+      updateClientsViewDecks(games[gameIndex]);
+      if (games[gameIndex].gameState.deck.rollsCounter === games[gameIndex].gameState.deck.rollsMaximum) {
+        performBotChoice(games[gameIndex], updateClientsViewDecks, updateClientsViewChoices, updateClientsViewGrid, updateClientsViewTimers);
+      } else {
+        performBotAction(games[gameIndex], updateClientsViewDecks, updateClientsViewChoices, updateClientsViewGrid, updateClientsViewTimers);
+      }
+    } else {
+      performBotChoice(games[gameIndex], updateClientsViewDecks, updateClientsViewChoices, updateClientsViewGrid, updateClientsViewTimers);
+    }
   }, 2000);
 };
 
+const performBotChoice = (game, updateClientsViewDecks, updateClientsViewChoices, updateClientsViewGrid, updateClientsViewTimers) => {
+  setTimeout(() => {
+    const gameIndex = game_service_1.default.utils.findGameIndexById(games, game.idGame);
+    // Simule la sélection d'une combinaison par le bot
+    console.log("Bot selecting choice");
+    const availableChoices = game_service_1.default.choices.findCombinations(
+      games[gameIndex].gameState.deck.dices, 
+      false, 
+      games[gameIndex].gameState.deck.rollsCounter === 2
+    );
+    if (availableChoices.length > 0) {
+      const selectedChoice = availableChoices[Math.floor(Math.random() * availableChoices.length)];
+      games[gameIndex].gameState.choices.idSelectedChoice = selectedChoice.id;
+      games[gameIndex].gameState.grid = game_service_1.default.grid.updateGridAfterSelectingChoice(
+        selectedChoice.id, 
+        games[gameIndex].gameState.grid
+      );
+      updateClientsViewChoices(games[gameIndex]);
+      performBotGridSelection(games[gameIndex], updateClientsViewDecks, updateClientsViewChoices, updateClientsViewGrid, updateClientsViewTimers);
+    }
+  }, 2000);
+};
+
+const performBotGridSelection = (game, updateClientsViewDecks, updateClientsViewChoices, updateClientsViewGrid, updateClientsViewTimers) => {
+  setTimeout(() => {
+    const gameIndex = game_service_1.default.utils.findGameIndexById(games, game.idGame);
+    // Simule la sélection d'une cellule dans la grille par le bot
+    console.log("Bot selecting cell in grid");
+    const cellToSelect = games[gameIndex].gameState.grid.flat().find(cell => cell.canBeChecked);
+    if (cellToSelect) {
+      games[gameIndex].gameState.grid = game_service_1.default.grid.selectCell(
+        cellToSelect.id, 
+        cellToSelect.rowIndex, 
+        cellToSelect.cellIndex, 
+        "player:2", 
+        games[gameIndex].gameState.grid
+      );
+      games[gameIndex].gameState = game_service_1.default.utils.decrementTiles(games[gameIndex].gameState);
+      const { playerScores, winner } = game_service_1.default.utils.calculateScoreAndWinner(games[gameIndex].gameState.grid);
+      games[gameIndex].gameState.player1Score = playerScores["1"];
+      games[gameIndex].gameState.player2Score = playerScores["2"];
+      updateClientsViewGrid(games[gameIndex]);
+      games[gameIndex].player1Socket.emit(
+        "game.score",
+        game_service_1.default.send.forPlayer.gameScore("player:1", games[gameIndex].gameState)
+      );
+      if (winner) {
+        games[gameIndex].player1Socket.emit("game.end", winner === "player:1");
+      }
+    }
+
+    // Passe le tour au joueur humain
+    games[gameIndex].gameState.currentTurn = "player:1";
+    games[gameIndex].gameState.timer = game_service_1.default.timer.getTurnDuration();
+    updateClientsViewTimers(games[gameIndex]);
+    updateClientsViewDecks(games[gameIndex]);
+    updateClientsViewChoices(games[gameIndex]);
+    updateClientsViewGrid(games[gameIndex]);
+  }, 2000);
+};
 // Mise à jour de la file d'attente pour gérer un seul joueur et un bot
 const newPlayerInQueue = (socket) => {
   queue.push(socket);
